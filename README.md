@@ -1,2 +1,2 @@
-# http-client-python
+# http-client-server-python
 socket program that can download files from web using network basics 
