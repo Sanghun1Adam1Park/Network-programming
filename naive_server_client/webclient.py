@@ -1,6 +1,7 @@
 import socket 
 from typing import Tuple
 import sys  
+from dotenv import load_dotenv
 
 ENCODING: str = "ISO-8859-1"
 
