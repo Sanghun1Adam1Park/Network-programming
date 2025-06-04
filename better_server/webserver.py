@@ -3,10 +3,9 @@ import os
 import mimetypes
 
 ENCODING: str = "ISO-8859-1"
-HOST = '127.0.0.1'
+HOST = '0.0.0.0'
 PORT: int = 8000
 
-# TODO: extention and mime 
 if __name__ == "__main__":
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
@@ -38,15 +37,40 @@ if __name__ == "__main__":
                 # Get filename for security
                 # Since allowing whole path can cause data leak
                 filename: str = os.path.split(header.split(" ")[1])[-1]
-                path: str = os.path.join("./better_server/files", filename)
+                path: str = os.path.abspath(os.path.join(
+                    os.path.abspath("./better_server/files"), filename))
 
                 response_header: bytes = b""
                 response_payload: bytes = b""
                 mime_type: bytes = b""
-                if not os.path.isfile(path):
+                if not filename or filename == "":
+                    response_header = b"HTTP/1.1 200 OK"
+                    files = os.listdir("./better_server/files/")
+                    links = [f'<li><a href="/{file}">{file}</a></li>' for file in files]
+                    html = f"""
+                    <html>
+                        <head><title>Directory Listing</title></head>
+                        <body>
+                            <h1>Available Files:</h1>
+                            <ul>
+                                {''.join(links)}
+                            </ul>
+                        </body>
+                    </html>
+                    """
+                    response_payload = html.encode(ENCODING)
+                    mime_type = b"text/html"
+                elif not os.path.isfile(path):
                     response_header = b"HTTP/1.1 404 Not Found"
-                    response_payload = b"404 not found"
-                    mime_type = b"text/plain"
+                    html = f"""
+                    <html>
+                        <body>
+                            404 not found
+                        </body>
+                    </html>
+                    """
+                    response_payload = html.encode(ENCODING)
+                    mime_type = b"text/html"
                 else:
                     response_header = b"HTTP/1.1 200 OK"
                     mime_type = (
