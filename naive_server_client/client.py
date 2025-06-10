@@ -1,7 +1,6 @@
 import socket 
 from typing import Tuple
 import sys  
-from dotenv import load_dotenv
 
 ENCODING: str = "ISO-8859-1"
 
@@ -20,7 +19,7 @@ def get(address: str, port: int) -> str:
         response: bytes = b""
         buffer: bytes = b""
         while True:
-            byte = s.recv(1)
+            byte = s.recv(1024)
             if not byte:
                 break # no more data incoming 
             buffer += byte
